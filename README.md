@@ -25,7 +25,10 @@ for instructions on how to modify a raspi pico to be a usb ducky [see this video
 * run `python decrypt_chrome_password.py`<br>
 
 ## Output
-Saved as decrypted_password.csv and shown in console
+Saved as decrypted_password.csv and shown in console. <br>
+
+## Demo
+![rpiDemo](https://github.com/matanton666/rpi-pico-chrome-passwords-extractor/assets/54497551/d7add63c-3d62-4fe4-a8ef-ea99d281e4a7)
 
 ### for more info check out [this repo](https://github.com/ohyicong/decrypt-chrome-passwords)
 
