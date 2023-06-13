@@ -1,1 +1,0 @@
-if(secret_key and conn):
