@@ -3,6 +3,8 @@ This is a simple modification of [this repo](https://github.com/ohyicong/decrypt
 Used by a raspberry pi pico as a usb ducky to extract the passwords stored localy by chrome. <br>
 Then use a pc to decode the passwords that were extracted. <br>
 
+- * note this is for educational purposes only. please do not use this in harmful or inapropriet ways.*
+
 ## local python script
 A simple program to decrypt chrome password saved on your machine. <br>
 This code has only been tested on windows, so it may not work on other OS.<br>
